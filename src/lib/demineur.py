@@ -11,14 +11,14 @@ class Demineur:
         assert nb_bombs < size[0] * size[1]
         self.width, self.height = size
         self.nbBombs = nb_bombs
-        self.board = [[Cell(size, x, y) for y in range(size[1])] for x in range(size[0])]
+        self.board = [[Cell()]*size[0], ] * size[1]
         self.__init_board()
         self.__create_neighbours()
 
     def __create_neighbours(self):
-        for x in range(self.width):
-            for y in range(self.height):
-                neighbours = [self.board[y+dy][x+dx] for dx in [-1, 0, 1] for dy in [-1, 0, 1]
+        for y in range(self.height):
+            for x in range(self.width):
+                neighbours = [self.board[y+dy][x+dx] for dy in [-1, 0, 1] for dx in [-1, 0, 1]
                               if 0 <= x+dx <= self.width - 1 and 0 <= y + dy <= self.height - 1]
                 self.board[y][x].set_neighbours(neighbours)
 
@@ -49,16 +49,18 @@ class Demineur:
         return c.is_bomb()
 
     def is_it_over(self):
-        res = []
-        for x in range(self.width):
-            res.append(all((self.board[y][x].is_bomb() and self.board[y][x].is_flagged()) or (not self.board[y][x].is_bomb() and self.board[y][x].is_revealed()) for y in range(self.height)))
-        return all(res)
+        for y in range(self.height):
+            for x in range(self.width):
+                if not ((self.board[y][x].is_bomb() and self.board[y][x].is_flagged()) or
+                        (not self.board[y][x].is_bomb() and self.board[y][x].is_revealed())):
+                            return False
+        return True
 
     def __str__(self):
         ret = ""
-        for x in range(self.width):
+        for y in range(self.height):
             ret += "*-"*self.width + "*\n"
-            for y in range(self.height):
+            for x in range(self.width):
                 ret += "|{}".format(self.board[y][x])
             ret += "|\n"
         return ret + "*-"*self.width + "*"

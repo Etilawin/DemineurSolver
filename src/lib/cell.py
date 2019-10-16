@@ -1,5 +1,5 @@
 class Cell:
-    def __init__(self, x, y, size):
+    def __init__(self):
         self.bomb = False
         self.flag = False
         self.revealed = False

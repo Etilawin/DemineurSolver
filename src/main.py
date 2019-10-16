@@ -14,7 +14,7 @@ if __name__ == "__main__":
             res = dem.reveal_bomb(x, y)
             if res:
                 end = True
-                print("Vous avez perdu... Vous avez révelé une bombe en {}, {}! ".format(x,y))
+                print("Vous avez perdu... Vous avez révelé une bombe en {}, {}! ".format(x, y))
                 print(dem.show_true_board())
                 continue
 
