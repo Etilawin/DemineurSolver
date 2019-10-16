@@ -1,16 +1,10 @@
 class Cell:
-    def __init__(self):
-        self.bomb = False
+    def __init__(self, b=False):
+        self.__bomb = b
         self.flag = False
         self.revealed = False
         self.neighbours = []
         self.nb_neighbours_bombs = 0
-
-    def set_bomb(self):
-        self.bomb = True
-
-    def is_bomb(self):
-        return self.bomb
 
     def set_flag(self, b):
         assert isinstance(b, bool), "setFlag: Cell: b is not a boolean"
@@ -21,13 +15,10 @@ class Cell:
 
     def set_neighbours(self, neighbours):
         self.neighbours = neighbours
-        self.nb_neighbours_bombs = sum([c.is_bomb() for c in self.neighbours])
+        self.nb_neighbours_bombs = sum([c.__bomb for c in self.neighbours])
 
     def get_neighbours(self):
         return self.neighbours
-
-    def get_number_neighbours(self):
-        return self.nb_neighbours_bombs
 
     def reveal(self):
         self.revealed = True
@@ -35,6 +26,7 @@ class Cell:
             for c in self.neighbours:
                 if not c.is_revealed():
                     c.reveal()
+        return self.__bomb
 
     def is_revealed(self):
         return self.revealed
@@ -43,7 +35,7 @@ class Cell:
         if self.flag:
             return "!"
         elif self.revealed:
-            if self.bomb:
+            if self.__bomb:
                 return "o"
             return "{}".format(self.nb_neighbours_bombs)  #  if self.nb_neighbours_bombs != 0 else " "
         return " "

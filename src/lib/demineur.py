@@ -10,8 +10,8 @@ class Demineur:
         assert isinstance(nb_bombs, int), "__init__: Demineur: nbBombs is not an int"
         assert nb_bombs < size[0] * size[1]
         self.width, self.height = size
-        self.nbBombs = nb_bombs
-        self.board = [[Cell()]*size[0], ] * size[1]
+        self.nb_bombs = nb_bombs
+        self.board = []
         self.__init_board()
         self.__create_neighbours()
 
@@ -24,20 +24,22 @@ class Demineur:
 
     def __init_board(self):
         # Random generator of bombs
-        bombs_to_place = self.nbBombs
+        bombs_to_place = self.nb_bombs
+        placed_bombs = []
         while bombs_to_place != 0:
-            x = randint(0, self.width-1)
-            y = randint(0, self.height-1)
-            placed = self.__place_bomb(x, y)
-            if placed:
+            x = randint(0, self.width - 1)
+            y = randint(0, self.height - 1)
+            if not (x, y) in placed_bombs:
+                placed_bombs.append((x, y))
                 bombs_to_place -= 1
-
-    def __place_bomb(self, x, y):
-        if self.board[y][x].is_bomb():
-            return False
-
-        self.board[y][x].set_bomb()
-        return True
+        assert len(placed_bombs) == self.nb_bombs, "__init_board: Demineur: Logic exception"
+        for y in range(self.height):
+            self.board.append([])
+            for x in range(self.width):
+                if (x, y) in placed_bombs:
+                    self.board[y].append(Cell(True))
+                else:
+                    self.board[y].append(Cell())
 
     def set_flag(self, x, y):
         c = self.board[y][x]
@@ -45,16 +47,15 @@ class Demineur:
 
     def reveal_bomb(self, x, y):
         c = self.board[y][x]
-        c.reveal()
-        return c.is_bomb()
+        return c.reveal()  # True if c is a bomb False otherwise
 
     def is_it_over(self):
+        nb_revealed = 0
         for y in range(self.height):
             for x in range(self.width):
-                if not ((self.board[y][x].is_bomb() and self.board[y][x].is_flagged()) or
-                        (not self.board[y][x].is_bomb() and self.board[y][x].is_revealed())):
-                            return False
-        return True
+                if not self.board[y][x].is_revealed():
+                    nb_revealed += 1
+        return nb_revealed == self.nb_bombs
 
     def __str__(self):
         ret = ""

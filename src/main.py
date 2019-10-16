@@ -1,7 +1,7 @@
-from lib import demineur
+from lib import demineur, graphical
 
 if __name__ == "__main__":
-    dem = demineur.Demineur((10, 10), 10)
+    dem = demineur.Demineur((40, 40), 10)
     # print(dem)
     end = False
     while not end:
@@ -15,7 +15,6 @@ if __name__ == "__main__":
             if res:
                 end = True
                 print("Vous avez perdu... Vous avez révelé une bombe en {}, {}! ".format(x, y))
-                print(dem.show_true_board())
                 continue
 
         if dem.is_it_over():
