@@ -6,9 +6,9 @@ class Cell:
         self.neighbours = []
         self.nb_neighbours_bombs = 0
 
-    def set_flag(self, b):
-        assert isinstance(b, bool), "setFlag: Cell: b is not a boolean"
-        self.flag = b
+    def change_flag(self):
+        if not self.revealed:
+            self.flag = not self.flag
 
     def is_flagged(self):
         return self.flag
@@ -20,13 +20,18 @@ class Cell:
     def get_neighbours(self):
         return self.neighbours
 
+    def nb_neighbour_bombs(self):
+        return self.nb_neighbours_bombs
+
     def reveal(self):
-        self.revealed = True
-        if self.nb_neighbours_bombs == 0:
-            for c in self.neighbours:
-                if not c.is_revealed():
-                    c.reveal()
-        return self.__bomb
+        if not self.flag:
+            self.revealed = True
+            if self.nb_neighbours_bombs == 0:
+                for c in self.neighbours:
+                    if not c.is_revealed():
+                        c.reveal()
+            return self.__bomb
+        return None
 
     def is_revealed(self):
         return self.revealed

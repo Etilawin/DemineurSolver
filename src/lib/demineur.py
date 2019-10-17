@@ -41,9 +41,12 @@ class Demineur:
                 else:
                     self.board[y].append(Cell())
 
+    def get_board(self):
+        return self.board
+
     def set_flag(self, x, y):
         c = self.board[y][x]
-        c.set_flag(not c.is_flagged())
+        c.change_flag()
 
     def reveal_bomb(self, x, y):
         c = self.board[y][x]
