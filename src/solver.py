@@ -38,28 +38,11 @@ class Solver:
                             if not c.is_flagged():
                                 c.change_flag()
                         break
-                    if len(flagged_neighbours) ==
+                    # if len(flagged_neighbours) ==
 
             if second_pass:
                 #  Second pass if first pass failed to find something
                 pass
-
-        # while not end:
-        #     pass
-            # coord = input("Please enter the coordinates x,y,[f,r] : ").strip().split(",")
-            # x, y = int(coord[0]), int(coord[1])
-            # if "f" in coord[2]:
-            #     self.dem.set_flag(x, y)
-            # elif "r" in coord[2]:
-            #     res = dem.reveal_bomb(x, y)
-            #     if res:
-            #         end = True
-            #         print("You have lost by revealing a bomb in {}, {}! ".format(x, y))
-            #         continue
-            #
-            # if dem.is_it_over():
-            #     end = True
-            #     print("Well done you won !")
 
     def __init_border(self):
         for y in range(self.height):
