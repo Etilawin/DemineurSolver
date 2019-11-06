@@ -1,13 +1,13 @@
 from lib.demineur import Demineur
 
 if __name__ == "__main__":
-    size = (10, 10)
-    dem = Demineur(size, 10)
     # dem.get_true_board()
     # print(dem)
-    end = False
     replay = True
     while replay:
+        size = (10, 10)
+        dem = Demineur(size, 1)
+        end = False
         while not end:
             print(dem)
             coord = input("Please enter the coordinates x,y,[f,r] : ").strip().split(",")
