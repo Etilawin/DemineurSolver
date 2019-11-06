@@ -1,4 +1,4 @@
-from .cell import Cell
+from cell import Cell
 from random import randint, random
 from copy import deepcopy
 

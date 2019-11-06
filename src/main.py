@@ -1,5 +1,5 @@
-from lib.demineur import Demineur
-from lib.solver import Solver
+from demineur import Demineur
+from solver import Solver
 
 if __name__ == "__main__":
     # dem.get_true_board()
@@ -9,6 +9,8 @@ if __name__ == "__main__":
         size = (10, 10)
         dem = Demineur(size, 1)
         solver = Solver(dem)
+        solver.solve()
+        replay = False
 
         # end = False
         # while not end:
