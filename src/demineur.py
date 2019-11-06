@@ -44,6 +44,9 @@ class Demineur:
     def get_board(self):
         return self.board
 
+    def get_board_size(self):
+        return self.width, self.height
+
     def get_true_board(self):
         for y in range(self.height):
             for x in range(self.width):

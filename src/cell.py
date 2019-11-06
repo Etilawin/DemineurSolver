@@ -17,13 +17,14 @@ class Cell:
         self.neighbours = neighbours
         self.nb_neighbours_bombs = sum([c.__bomb for c in self.neighbours])
 
-    def get_neighbours(self):
+    def get_neighbours(self) -> []:
         return self.neighbours
 
-    def nb_neighbour_bombs(self):
-        return self.nb_neighbours_bombs
+    def nb_neighbour_bombs(self) -> int:
+        if self.revealed:
+            return self.nb_neighbours_bombs
 
-    def reveal(self):
+    def reveal(self) -> bool:
         # print(self.nb_neighbours_bombs)
         if not self.flag and not self.revealed:
             self.revealed = True
@@ -31,7 +32,6 @@ class Cell:
                 for c in self.neighbours:
                     c.reveal()
             return self.__bomb
-        return None
 
     def is_revealed(self):
         return self.revealed
