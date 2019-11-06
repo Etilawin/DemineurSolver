@@ -1,25 +1,27 @@
-from lib import demineur, graphical
+from lib.demineur import Demineur
 
 if __name__ == "__main__":
-    size = (40, 40)
-    dem = demineur.Demineur(size, 10)
-    graphical.start(size, dem)
+    size = (10, 10)
+    dem = Demineur(size, 10)
+    # dem.get_true_board()
     # print(dem)
-    # end = False
-    # while not end:
-    #     print(dem)
-    #     coord = input("Please enter the coordinates y,x,[f,r] : ").strip().split(",")
-    #     x, y = int(coord[0]), int(coord[1])
-    #     if "f" in coord[2]:
-    #         dem.set_flag(x, y)
-    #     elif "r" in coord[2]:
-    #         res = dem.reveal_bomb(x, y)
-    #         if res:
-    #             end = True
-    #             print("Vous avez perdu... Vous avez révelé une bombe en {}, {}! ".format(x, y))
-    #             continue
-    #
-    #     if dem.is_it_over():
-    #         end = True
-    #         print("Bravo tu as gagné !")
-    #         continue
+    end = False
+    replay = True
+    while replay:
+        while not end:
+            print(dem)
+            coord = input("Please enter the coordinates x,y,[f,r] : ").strip().split(",")
+            x, y = int(coord[0]), int(coord[1])
+            if "f" in coord[2]:
+                dem.set_flag(x, y)
+            elif "r" in coord[2]:
+                res = dem.reveal_bomb(x, y)
+                if res:
+                    end = True
+                    print("You have lost by revealing a bomb in {}, {}! ".format(x, y))
+                    continue
+
+            if dem.is_it_over():
+                end = True
+                print("Well done you won !")
+        replay = input("Do you want to replay ? (y/n)").strip().lower() == "y"

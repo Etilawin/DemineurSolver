@@ -18,12 +18,14 @@ def text_objects(text, font):
     return text_surface, text_surface.get_rect()
 
 
-def button(pos_x, pos_y, w, h, ic, dem: Demineur, x, y):
+def button(pos_x: int, pos_y: int, w: int, h: int, ic, dem: Demineur, x: int, y: int):
     global gameDisplay
 
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
-    b = False
+
+    if any(click):
+        print(click)
 
     if pos_x + w > mouse[0] > pos_x and pos_y + h > mouse[1] > pos_y:
         if click[0] == 1:
@@ -36,12 +38,14 @@ def button(pos_x, pos_y, w, h, ic, dem: Demineur, x, y):
 
     pygame.draw.rect(gameDisplay, ic, (pos_x, pos_y, w, h))
 
-    if cell.is_revealed():
-        msg = str(cell.nb_neighbours_bombs())
-    elif cell.is_flagged():
+    c = dem.get_cell(x, y)
+
+    if c.is_revealed():
+        msg = str(c.nb_neighbours_bombs())
+    elif c.is_flagged():
         msg = "!"
     else:
-        msg = ""
+        msg = "v"
 
     small_text = pygame.font.SysFont("comicsansms", 20)
     text_surf, text_rect = text_objects(msg, small_text)
@@ -54,8 +58,6 @@ def start(size: (int, int), dem: Demineur):
 
     pygame.display.set_caption('Minesweeper !')
     clock = pygame.time.Clock()
-
-    board = dem.get_board()
 
     width, height = size
     square_size = display_width // width
@@ -71,15 +73,13 @@ def start(size: (int, int), dem: Demineur):
 
             for y in range(height):
                 for x in range(width):
-                    button(x * square_size, y * square_size, square_size, square_size, grey, dem, x, y)
+                    button(x * square_size, 100 + y * square_size, square_size, square_size, grey, dem, x, y)
 
             pygame.display.update()
 
             if dem.is_it_over():
                 crashed = True
                 print("Bravo tu as gagné")
-
-            clock.tick(15)
     finally:
         pygame.quit()
 

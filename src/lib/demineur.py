@@ -44,11 +44,20 @@ class Demineur:
     def get_board(self):
         return self.board
 
+    def get_true_board(self):
+        for y in range(self.height):
+            for x in range(self.width):
+                print(" {} ".format(self.board[y][x].op_str()), end="")
+            print()
+
+    def get_cell(self, x: int, y: int) -> Cell:
+        return self.board[y][x]
+
     def set_flag(self, x, y):
         c = self.board[y][x]
         c.change_flag()
 
-    def reveal_bomb(self, x, y):
+    def reveal_bomb(self, x: int, y: int):
         c = self.board[y][x]
         return c.reveal()  # True if c is a bomb False otherwise
 

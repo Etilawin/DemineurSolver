@@ -24,17 +24,22 @@ class Cell:
         return self.nb_neighbours_bombs
 
     def reveal(self):
-        if not self.flag:
+        # print(self.nb_neighbours_bombs)
+        if not self.flag and not self.revealed:
             self.revealed = True
             if self.nb_neighbours_bombs == 0:
                 for c in self.neighbours:
-                    if not c.is_revealed():
-                        c.reveal()
+                    c.reveal()
             return self.__bomb
         return None
 
     def is_revealed(self):
         return self.revealed
+
+    def op_str(self):
+        if self.__bomb:
+            return "o"
+        return "{}".format(self.nb_neighbours_bombs)  #  if self.nb_neighbours_bombs != 0 else " "
 
     def __str__(self):
         if self.flag:
