@@ -6,8 +6,8 @@ if __name__ == "__main__":
     # print(dem)
     replay = True
     while replay:
-        size = (10, 10)
-        dem = Demineur(size, 1)
+        size = (50, 50)
+        dem = Demineur(size, 100)
         solver = Solver(dem)
         solver.solve()
         replay = False

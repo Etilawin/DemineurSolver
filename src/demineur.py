@@ -18,9 +18,10 @@ class Demineur:
     def __create_neighbours(self):
         for y in range(self.height):
             for x in range(self.width):
-                neighbours = [self.board[y+dy][x+dx] for dy in [-1, 0, 1] for dx in [-1, 0, 1]
-                              if 0 <= x+dx <= self.width - 1 and 0 <= y + dy <= self.height - 1]
-                self.board[y][x].set_neighbours(neighbours)
+                neighbours = [(x+dx, y) for dx in [-1, 1] if 0 <= x+dx <= self.width - 1]
+                neighbours += [(x, y+dy) for dy in [-1, 1] if 0 <= y + dy <= self.height - 1]
+                nb_bombs = sum([self.get_cell(x, y).is_bomb() for x, y in neighbours])
+                self.board[y][x].set_neighbours(neighbours, nb_bombs)
 
     def __init_board(self):
         # Random generator of bombs
@@ -62,7 +63,26 @@ class Demineur:
 
     def reveal_bomb(self, x: int, y: int):
         c = self.board[y][x]
-        return c.reveal()  # True if c is a bomb False otherwise
+        res = False
+        if not c.is_revealed() and not c.is_flagged():
+            res = c.reveal()
+            assert c.is_revealed(), "This cell should be revealed"
+            if not res:
+                # If it is not a bomb reveal the other one
+                if c.get_number_bombs() == 0:
+                    for x2, y2 in c.get_neighbours():
+                        if not self.board[y2][x2].is_revealed():
+                            self.reveal_bomb(x2, y2)
+        return res
+        # if not c.is_revealed() and not c.is_flagged():
+        #     if c.reveal():
+        #         return True
+        #     if c.get_number_bombs() == 0:
+        #         for x2, y2 in c.get_neighbours():
+        #             print(x2, y2)
+        #             if not self.board[y2][x2].is_revealed():
+        #                 self.reveal_bomb(x2, y2)
+        #     return False
 
     def is_it_over(self):
         nb_revealed = 0

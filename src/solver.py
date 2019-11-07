@@ -24,25 +24,37 @@ class Solver:
             for x, y in bordercpy:
                 cell = self.dem.get_cell(x, y)
                 neighbours = cell.get_neighbours()
-                flagged_neighbours = [c for c in neighbours if c.is_flagged()]
-                unrevealed_neighbours = [c for c in neighbours if not c.is_revealed()]
-                nb_neighbour_bombs = cell.nb_neighbours_bombs()
+                flagged_neighbours = [(x, y) for x, y in neighbours if self.dem.get_cell(x, y).is_flagged()]
+                unrevealed_neighbours = [(x, y) for x, y in neighbours if not self.dem.get_cell(x, y).is_revealed()]
+                nb_neighbour_bombs = cell.get_number_bombs()
                 if len(flagged_neighbours) == nb_neighbour_bombs == len(unrevealed_neighbours) :
                     self.border.remove((x, y))
-                else:
-                    if len(unrevealed_neighbours) == nb_neighbour_bombs:
-                        # great easy one we just got a simple case there
-                        second_pass = False
-                        self.border.remove((x, y))
-                        for c in unrevealed_neighbours:
-                            if not c.is_flagged():
-                                c.change_flag()
-                        break
-                    # if len(flagged_neighbours) ==
+                elif len(unrevealed_neighbours) == nb_neighbour_bombs:
+                    # Great easy one we just got a simple case there
+                    self.border.remove((x, y))
+                    for x2, y2 in unrevealed_neighbours:
+                        n_cell = self.dem.get_cell(x2, y2)
+                        if not n_cell.is_flagged():
+                            n_cell.change_flag()
+                elif len(flagged_neighbours) == nb_neighbour_bombs:
+                    # Great again simple case !
+                    second_pass = False
+                    self.border.remove((x, y))
+                    for x2, y2 in neighbours:
+                        n_cell = self.dem.get_cell(x2, y2)
+                        if not n_cell.is_revealed() and not n_cell.is_flagged():
+                            end = end or n_cell.reveal()
+                            self.border.append((x2, y2))
+            if end:
+                print("The robot has lost miserably ...")
 
             if second_pass:
-                #  Second pass if first pass failed to find something
-                pass
+                print("Second pass needed ...")
+                end = True
+
+            if self.dem.is_it_over():
+                end = True
+                print("Well done you won !")
 
     def __init_border(self):
         for y in range(self.height):
