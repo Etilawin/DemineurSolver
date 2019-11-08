@@ -18,8 +18,8 @@ class Demineur:
     def __create_neighbours(self):
         for y in range(self.height):
             for x in range(self.width):
-                neighbours = [(x+dx, y) for dx in [-1, 1] if 0 <= x+dx <= self.width - 1]
-                neighbours += [(x, y+dy) for dy in [-1, 1] if 0 <= y + dy <= self.height - 1]
+                neighbours = [(x+dx, y+dy) for dx in [-1, 0, 1] for dy in [-1, 0, 1]
+                              if 0 <= y + dy <= self.height - 1 and 0 <= x+dx <= self.width - 1 and not dx == dy == 0]
                 nb_bombs = sum([self.get_cell(x, y).is_bomb() for x, y in neighbours])
                 self.board[y][x].set_neighbours(neighbours, nb_bombs)
 

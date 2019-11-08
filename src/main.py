@@ -6,10 +6,35 @@ if __name__ == "__main__":
     # print(dem)
     replay = True
     while replay:
-        size = (50, 50)
-        dem = Demineur(size, 100)
-        solver = Solver(dem)
-        solver.solve()
+        size = (10, 10)
+        nb_tries = 100
+        for n_bombs in range(1, 30):
+            successes = 0
+            first_fail = 0
+            non_supposed_fails = 0
+            random_bomb = 0
+            no_second_pass = 0
+            print("Solving for {} bombs".format(n_bombs))
+            for i in range(nb_tries):
+                dem = Demineur(size, n_bombs)
+                solver = Solver(dem, False)
+                res = solver.solve()
+                if res == 5:
+                    no_second_pass += 1
+                elif res == 4:
+                    random_bomb += 1
+                elif res == 3:
+                    non_supposed_fails += 1
+                elif res == 2:
+                    first_fail += 1
+                elif res == 1:
+                    successes += 1
+            print("Success percentage is of {}%".format(100 * float(successes)/float(nb_tries)))
+            print("First fail percentage is of {}%".format(100 * float(first_fail) / float(nb_tries)))
+            print("Non supposed fails percentage is of {}%".format(100 * float(non_supposed_fails) / float(nb_tries)))
+            print("Random bomb percentage is of {}%".format(100 * float(random_bomb) / float(nb_tries)))
+            print("No second pass percentage is of {}%".format(100 * float(no_second_pass) / float(nb_tries)))
+            print("------------------------")
         replay = False
 
         # end = False
