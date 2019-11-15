@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, choice
 from demineur import Demineur
 
 
@@ -54,37 +54,50 @@ class Solver:
                     for x2, y2 in neighbours:
                         n_cell = self.dem.get_cell(x2, y2)
                         if not n_cell.is_revealed() and not n_cell.is_flagged():
-                            if n_cell.reveal():
+                            if self.dem.reveal_bomb(x2, y2):
                                 if self.v: print("The robot has lost miserably ...")
                                 return 3
                         self.__update_border()
-                elif nb_zeros_cell > 0:
+                else:
                     # Now we analyse the patterns
-                    if nb_neighbour_bombs == 1:
-                        assert len(flagged_neighbours) == 0, "logic exception, cannot be with {} flagged neighbours".format(len(flagged_neighbours))
+                    if nb_neighbour_bombs - len(flagged_neighbours) == 1:
+                        # assert len(flagged_neighbours) == 0, "logic exception, cannot be with {} flagged neighbours".format(len(flagged_neighbours))
                         
                         # First we try to detect the 1-1 pattern
                         for x2,y2 in neighbours:
                             ncell = self.dem.get_cell(x2,y2)
                             # Automatically implies it have been revealed !
-                            if ncell.get_number_bombs() == 1:
+                            ncell_flagged_neighbours = sum([1 for x, y in ncell.get_neighbours() if self.dem.get_cell(x, y).is_flagged()])
+                            if ncell.is_revealed() and ncell.get_number_bombs() - ncell_flagged_neighbours == 1:
                                 # Not in the diagonal
                                 if x2 == x or y2 == y:
                                     dx = x2 - x
                                     dy = y2 - y
                                     if dy == 0:
                                         # We count all cells that have not been revealed upper or downer
-                                        upper = sum([1 for ex,ey in neighbours if ey < y and not self.dem.get_cell(ex,ey).is_revealed()]) 
-                                        under = sum([1 for ex,ey in neighbours if ey > y and not self.dem.get_cell(ex,ey).is_revealed()])
-                                        if (under == 0 and upper == 3) or (upper == 0 and under == 3):
+                                        upper = sum([1 for ex,ey in neighbours if ey < y and not self.dem.get_cell(ex,ey).is_revealed() and not self.dem.get_cell(ex,ey).is_flagged()]) 
+                                        under = sum([1 for ex,ey in neighbours if ey > y and not self.dem.get_cell(ex,ey).is_revealed() and not self.dem.get_cell(ex,ey).is_flagged()])
+                                        expected_upper = 3
+                                        expected_under = 3
+                                        if x == 0 or x == self.width - 1:
+                                            expected_upper = expected_under = 2
+                                        if y == 0:
+                                            expected_upper = 0
+                                        elif y == self.height - 1:
+                                            expected_under = 0
+                                        if (under == 0 and upper == expected_upper) or (upper == 0 and under == expected_under):
                                             assert not (under == 0 and upper == 0), "Logic exception, upper and under cannot both be 0"
-                                            side_of_sidecell = sum([1 for ex,ey in ncell.get_neighbours() if ex == x + dx and not self.dem.get_cell(ex,ey).is_revealed()])
-                                            if side_of_sidecell == 0 and upper == 0:
+                                            side_of_sidecell = sum([1 for ex,ey in ncell.get_neighbours() if ex == x2 + dx and not self.dem.get_cell(ex,ey).is_revealed() and not self.dem.get_cell(ex,ey).is_flagged()])
+                                            if side_of_sidecell == 0 and upper == 0 and 0 <= x - dx < self.width and 0 <= y + 1 < self.height:
                                                 done_smthing = True
+                                                # assert 0 <= x - dx < self.width, "x-dx {} is not in 0 {} for ({},{})".format(x-dx, self.width - 1, x, y)
+                                                # assert 0 <= y + 1 < self.height, "y+1 {} is not in 0 {} for ({},{})".format(y+1, self.height - 1, x, y)
                                                 end = end or self.dem.reveal_bomb(x - dx, y + 1)
                                                 self.__update_border()
-                                            elif side_of_sidecell == 0 and under == 0:
+                                            elif side_of_sidecell == 0 and under == 0 and 0 <= x - dx < self.width and 0 <= y - 1 < self.height:
                                                 done_smthing = True
+                                                # assert 0 <= x - dx < self.width, "x-dx {} is not in 0 {} for ({},{})".format(x-dx, self.width - 1, x, y)
+                                                # assert 0 <= y - 1 < self.height, "y-1 {} is not in 0 {} for ({},{})".format(y-1, self.height - 1, x, y)
                                                 end = end or self.dem.reveal_bomb(x - dx,y - 1)
                                                 self.__update_border()
                                             assert not end, "Lost in line 84 because of wrong 1-1 solution"
@@ -92,57 +105,69 @@ class Solver:
                                         # We count all cells that have not been revealed right or left
                                         left = sum([1 for ex,ey in neighbours if ex < x and not self.dem.get_cell(ex,ey).is_revealed()]) 
                                         right = sum([1 for ex,ey in neighbours if ex > x and not self.dem.get_cell(ex,ey).is_revealed()])
-                                        if (left == 0 and right == 3) or (right == 0 and left == 3):
+                                        expected_left = 3
+                                        expected_right = 3
+                                        if y == 0 or y == self.height - 1:
+                                            expected_left = expected_right = 2
+                                        if x == 0:
+                                            expected_upper = 0
+                                        elif x == self.width - 1:
+                                            expected_under = 0
+                                        if (left == 0 and right == expected_right) or (right == 0 and left == expected_left):
                                             assert not (left == 0 and right == 0), "Logic exception, right and left cannot both be 0"
-                                            side_of_sidecell = sum([1 for ex,ey in ncell.get_neighbours() if ey == y + dy and not self.dem.get_cell(ex,ey).is_revealed()])
-                                            if side_of_sidecell == 0 and right == 0:
+                                            side_of_sidecell = sum([1 for ex,ey in ncell.get_neighbours() if ey == y2 + dy and not self.dem.get_cell(ex,ey).is_revealed() and not self.dem.get_cell(ex,ey).is_flagged()])
+                                            if side_of_sidecell == 0 and right == 0 and 0 <= x - 1 < self.width and 0 <= y - dy < self.height:
                                                 done_smthing = True
+                                                # assert 0 <= x - 1 < self.width, "x-1 {} is not in 0 {} for ({},{})".format(x-1, self.width - 1, x, y)
+                                                # assert 0 <= y - dy < self.height, "y-dy {} is not in 0 {} for ({},{})".format(y-dy, self.height - 1, x, y)
                                                 end = end or self.dem.reveal_bomb(x - 1,y - dy)
                                                 self.__update_border()
-                                            elif side_of_sidecell == 0 and left == 0:
+                                            elif side_of_sidecell == 0 and left == 0  and 0 <= x + 1 < self.width and 0 <= y - dy < self.height:
                                                 done_smthing = True
+                                                # assert 0 <= x + 1 < self.width, "x+1 {} is not in 0 {} for ({},{})".format(x+1, self.width - 1, x, y)
+                                                # assert 0 <= y - dy < self.height, "y-dy {} is not in 0 {} for ({},{})".format(y-dy, self.height - 1, x, y)
                                                 end = end or self.dem.reveal_bomb(x + 1,y - dy)
                                                 self.__update_border()
                                             assert not end, "Lost in line 98 because of wrong 1-1 solution"
-                    if nb_neighbour_bombs == 2:
-                        if len(flagged_neighbours) == 0:
-                            # Ok for 2-1 tactics
-                            for x2,y2 in neighbours:
-                                ncell = self.dem.get_cell(x2,y2)
-                                # Automatically implies it have been revealed !
-                                if ncell.get_number_bombs() == 1:
-                                    # Not in the diagonal
-                                    if x2 == x or y2 == y:
+                    if nb_neighbour_bombs - len(flagged_neighbours) == 2:
+                        # Ok for 2-1 tactics
+                        for x2,y2 in neighbours:
+                            ncell = self.dem.get_cell(x2,y2)
+                            # Automatically implies it have been revealed !
+                            ncell_flagged_neighbours = sum([1 for x, y in ncell.get_neighbours() if self.dem.get_cell(x, y).is_flagged()])
+                            if ncell.is_revealed() and ncell.get_number_bombs() - ncell_flagged_neighbours == 1:
+                                # Not in the diagonal
+                                if x2 == x or y2 == y:
 
-                                        dx = x2 - x
-                                        dy = y2 - y
+                                    dx = x2 - x
+                                    dy = y2 - y
 
-                                        if dy == 0:
-                                            # We count all cells that have not been revealed upper or downer
-                                            upper = sum([1 for ex,ey in neighbours if ey < y and not self.dem.get_cell(ex,ey).is_revealed()]) 
-                                            under = sum([1 for ex,ey in neighbours if ey > y and not self.dem.get_cell(ex,ey).is_revealed()])
-                                            if ((under == 0 and upper == 3) or (upper == 0 and under == 3)) and self.dem.get_cell(x-dx,y).is_revealed():
-                                                assert not (under == 0 and upper == 0), "Logic exception, upper and under cannot both be 0"
-                                                if upper == 0:
-                                                    done_smthing = True
-                                                    end = end or self.dem.flag_bomb(x - dx, y + 1)
-                                                elif under == 0:
-                                                    done_smthing = True
-                                                    end = end or self.dem.flag_bomb(x - dx,y - 1)
-                                                assert not end, "Lost in line 84 because of wrong 1-2 solution"
-                                        elif dx == 0:
-                                            # We count all cells that have not been revealed right or left
-                                            left = sum([1 for ex,ey in neighbours if ex < x and not self.dem.get_cell(ex,ey).is_revealed()]) 
-                                            right = sum([1 for ex,ey in neighbours if ex > x and not self.dem.get_cell(ex,ey).is_revealed()])
-                                            if ((left == 0 and right == 3) or (right == 0 and left == 3)) and self.dem.get_cell(x,y-dy).is_revealed():
-                                                assert not (left == 0 and right == 0), "Logic exception, right and left cannot both be 0"
-                                                if right == 0:
-                                                    done_smthing = True
-                                                    end = end or self.dem.flag_bomb(x - 1,y - dy)
-                                                elif left == 0:
-                                                    done_smthing = True
-                                                    end = end or self.dem.flag_bomb(x + 1,y - dy)
-                                                assert not end, "Lost in line 98 because of wrong 1-1 solution"
+                                    if dy == 0:
+                                        # We count all cells that have not been revealed upper or downer
+                                        upper = sum([1 for ex,ey in neighbours if ey < y and not self.dem.get_cell(ex,ey).is_revealed() and not self.dem.get_cell(ex,ey).is_flagged()]) 
+                                        under = sum([1 for ex,ey in neighbours if ey > y and not self.dem.get_cell(ex,ey).is_revealed() and not self.dem.get_cell(ex,ey).is_flagged()])
+                                        if ((under == 0 and upper == 3) or (upper == 0 and under == 3)) and self.dem.get_cell(x-dx,y).is_revealed():
+                                            assert not (under == 0 and upper == 0), "Logic exception, upper and under cannot both be 0"
+                                            if upper == 0:
+                                                done_smthing = True
+                                                end = end or self.dem.flag_bomb(x - dx, y + 1)
+                                            elif under == 0:
+                                                done_smthing = True
+                                                end = end or self.dem.flag_bomb(x - dx,y - 1)
+                                            assert not end, "Lost in line 84 because of wrong 1-2 solution"
+                                    elif dx == 0:
+                                        # We count all cells that have not been revealed right or left
+                                        left = sum([1 for ex,ey in neighbours if ex < x and not self.dem.get_cell(ex,ey).is_revealed() and not self.dem.get_cell(ex,ey).is_flagged()]) 
+                                        right = sum([1 for ex,ey in neighbours if ex > x and not self.dem.get_cell(ex,ey).is_revealed() and not self.dem.get_cell(ex,ey).is_flagged()])
+                                        if ((left == 0 and right == 3) or (right == 0 and left == 3)) and self.dem.get_cell(x,y-dy).is_revealed():
+                                            assert not (left == 0 and right == 0), "Logic exception, right and left cannot both be 0"
+                                            if right == 0:
+                                                done_smthing = True
+                                                end = end or self.dem.flag_bomb(x - 1,y - dy)
+                                            elif left == 0:
+                                                done_smthing = True
+                                                end = end or self.dem.flag_bomb(x + 1,y - dy)
+                                            assert not end, "Lost in line 98 because of wrong 1-1 solution"
 
             if self.dem.is_it_over():
                 if self.v: print("Well done you won !")
@@ -167,8 +192,15 @@ class Solver:
             if not done_smthing:
                 if self.v: print("Needs more than the 1-1")
                 if self.v: print("Border : ", self.border)
-                raise Exception("\n" + str(self.dem))
-                return 5
+                # Assuming nothing can be done we reveal a random cell
+                end = end or self.__reveal_random_cell()
+
+                # self.dem.get_true_board()
+                # print("\n")
+                # print(self.dem)
+                # raise Exception("Error !")
+                if end:
+                    return 5
 
 
             if end:
@@ -209,5 +241,18 @@ class Solver:
         for y in range(self.height):
             for x in range(self.width):
                 cell = self.dem.get_cell(x, y)
-                if cell.is_revealed() and cell.get_number_bombs() != 0:
+                neighbours = cell.get_neighbours()
+                number_flagged = [(x, y) for x, y in neighbours if self.dem.get_cell(x, y).is_flagged()]
+                if cell.is_revealed() and cell.get_number_bombs() != len(number_flagged):
                     self.border.append((x, y))
+
+    def __reveal_random_cell(self):
+        unrevealed_cells = []
+        for y in range(self.height):
+            for x in range(self.width):
+                cell = self.dem.get_cell(x, y)
+                if not cell.is_revealed() and not cell.is_flagged():
+                    unrevealed_cells.append((x,y))
+        x,y = choice(unrevealed_cells)
+        return self.dem.reveal_bomb(x, y)
+

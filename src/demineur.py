@@ -76,15 +76,6 @@ class Demineur:
                         if not self.board[y2][x2].is_revealed():
                             self.reveal_bomb(x2, y2)
         return res
-        # if not c.is_revealed() and not c.is_flagged():
-        #     if c.reveal():
-        #         return True
-        #     if c.get_number_bombs() == 0:
-        #         for x2, y2 in c.get_neighbours():
-        #             print(x2, y2)
-        #             if not self.board[y2][x2].is_revealed():
-        #                 self.reveal_bomb(x2, y2)
-        #     return False
 
     def is_it_over(self):
         nb_revealed = 0

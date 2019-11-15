@@ -42,10 +42,10 @@ class Cell:
     def is_bomb(self):
         return self.__bomb
 
-    # def op_str(self):
-    #     if self.__bomb:
-    #         return "o"
-    #     return "{}".format(self.nb_neighbours_bombs)  #  if self.nb_neighbours_bombs != 0 else " "
+    def op_str(self):
+        if self.__bomb:
+            return "o"
+        return "{}".format(self.nb_neighbours_bombs)  #  if self.nb_neighbours_bombs != 0 else " "
 
     def __str__(self):
         if self.flagged:

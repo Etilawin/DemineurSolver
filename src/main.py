@@ -11,7 +11,14 @@ def test_nBombs(n_bombs, nb_tries,verbose = False):
     for i in range(nb_tries):
         dem = Demineur(size, n_bombs)
         solver = Solver(dem, verbose)
-        res = solver.solve()
+        try:
+            res = solver.solve()
+        except AssertionError as ae:
+            print(ae)
+            dem.get_true_board()
+            print("\n")
+            print(dem)
+            exit()
         if res == 5:
             no_second_pass += 1
         elif res == 4:
@@ -35,7 +42,8 @@ if __name__ == "__main__":
     while replay:
         size = (10, 10)
         nb_tries = 100
-        test_nBombs(2, nb_tries)
+        for i in range(1, 20):
+            test_nBombs(i, nb_tries)
         # for n_bombs in range(1, 30):
         #     test_nBombs(n_bombs)
         #     print("------------------------")
