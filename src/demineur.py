@@ -57,9 +57,11 @@ class Demineur:
     def get_cell(self, x: int, y: int) -> Cell:
         return self.board[y][x]
 
-    def set_flag(self, x, y):
-        c = self.board[y][x]
-        c.change_flag()
+    def flag_bomb(self, x: int, y: int):
+        self.board[y][x].set_flag()
+
+    def unflag_bomb(self, x: int, y: int):
+        self.board[y][x].unset_flag()
 
     def reveal_bomb(self, x: int, y: int):
         c = self.board[y][x]

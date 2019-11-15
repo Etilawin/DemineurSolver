@@ -46,8 +46,7 @@ class Solver:
                     self.border.remove((x, y))
                     for x2, y2 in unrevealed_neighbours:
                         n_cell = self.dem.get_cell(x2, y2)
-                        if not n_cell.is_flagged() and not n_cell.is_revealed():
-                            n_cell.change_flag()
+                        n_cell.set_flag()
                 elif len(flagged_neighbours) == nb_neighbour_bombs:
                     done_smthing = True
                     # Great again simple case !
@@ -66,8 +65,8 @@ class Solver:
                         
                         # First we try to detect the 1-1 pattern
                         for x2,y2 in neighbours:
-                            # Automatically implies it have been revealed !
                             ncell = self.dem.get_cell(x2,y2)
+                            # Automatically implies it have been revealed !
                             if ncell.get_number_bombs() == 1:
                                 # Not in the diagonal
                                 if x2 == x or y2 == y:
@@ -105,6 +104,45 @@ class Solver:
                                                 end = end or self.dem.reveal_bomb(x + 1,y - dy)
                                                 self.__update_border()
                                             assert not end, "Lost in line 98 because of wrong 1-1 solution"
+                    if nb_neighbour_bombs == 2:
+                        if len(flagged_neighbours) == 0:
+                            # Ok for 2-1 tactics
+                            for x2,y2 in neighbours:
+                                ncell = self.dem.get_cell(x2,y2)
+                                # Automatically implies it have been revealed !
+                                if ncell.get_number_bombs() == 1:
+                                    # Not in the diagonal
+                                    if x2 == x or y2 == y:
+
+                                        dx = x2 - x
+                                        dy = y2 - y
+
+                                        if dy == 0:
+                                            # We count all cells that have not been revealed upper or downer
+                                            upper = sum([1 for ex,ey in neighbours if ey < y and not self.dem.get_cell(ex,ey).is_revealed()]) 
+                                            under = sum([1 for ex,ey in neighbours if ey > y and not self.dem.get_cell(ex,ey).is_revealed()])
+                                            if ((under == 0 and upper == 3) or (upper == 0 and under == 3)) and self.dem.get_cell(x-dx,y).is_revealed():
+                                                assert not (under == 0 and upper == 0), "Logic exception, upper and under cannot both be 0"
+                                                if upper == 0:
+                                                    done_smthing = True
+                                                    end = end or self.dem.flag_bomb(x - dx, y + 1)
+                                                elif under == 0:
+                                                    done_smthing = True
+                                                    end = end or self.dem.flag_bomb(x - dx,y - 1)
+                                                assert not end, "Lost in line 84 because of wrong 1-2 solution"
+                                        elif dx == 0:
+                                            # We count all cells that have not been revealed right or left
+                                            left = sum([1 for ex,ey in neighbours if ex < x and not self.dem.get_cell(ex,ey).is_revealed()]) 
+                                            right = sum([1 for ex,ey in neighbours if ex > x and not self.dem.get_cell(ex,ey).is_revealed()])
+                                            if ((left == 0 and right == 3) or (right == 0 and left == 3)) and self.dem.get_cell(x,y-dy).is_revealed():
+                                                assert not (left == 0 and right == 0), "Logic exception, right and left cannot both be 0"
+                                                if right == 0:
+                                                    done_smthing = True
+                                                    end = end or self.dem.flag_bomb(x - 1,y - dy)
+                                                elif left == 0:
+                                                    done_smthing = True
+                                                    end = end or self.dem.flag_bomb(x + 1,y - dy)
+                                                assert not end, "Lost in line 98 because of wrong 1-1 solution"
 
             if self.dem.is_it_over():
                 if self.v: print("Well done you won !")
@@ -129,6 +167,7 @@ class Solver:
             if not done_smthing:
                 if self.v: print("Needs more than the 1-1")
                 if self.v: print("Border : ", self.border)
+                raise Exception("\n" + str(self.dem))
                 return 5
 
 
