@@ -21,7 +21,8 @@ class Cell:
         return self.neighbours
 
     def get_number_bombs(self) -> int:
-        return self.nb_neighbours_bombs
+        if self.revealed:
+            return self.nb_neighbours_bombs
 
     def reveal(self) -> bool:
         if not self.flag and not self.revealed:

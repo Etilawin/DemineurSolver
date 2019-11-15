@@ -35,8 +35,9 @@ if __name__ == "__main__":
             print("Random bomb percentage is of {}%".format(100 * float(random_bomb) / float(nb_tries)))
             print("No second pass percentage is of {}%".format(100 * float(no_second_pass) / float(nb_tries)))
             print("------------------------")
+        
+        
         replay = False
-
         # end = False
         # while not end:
         #     print(dem)
